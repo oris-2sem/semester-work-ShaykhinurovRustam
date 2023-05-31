@@ -1,0 +1,53 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <script src="https://code.iconify.design/2/2.2.1/iconify.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/products.css}" />
+    <title>Список товаров</title>
+</head>
+<body class="min-w-[1349px]">
+
+<!-- Toast -->
+<div th:if="${message}" id="toast"
+     class="fixed flex gap-4 items-center text-gray-600 font-medium right-10 bg-white z-20 bottom-10 shadow-lg border-2 rounded-md py-6 px-8">
+    <div class="w-10 h-10 flex items-center justify-center rounded-md bg-green-100 text-green-800 text-xl">
+        <i class="fa-solid fa-check"></i>
+    </div>
+    <p class="text-lg" th:text="${message}"></p>
+    <div id="toastCloseButton"
+         class="w-10 h-10 translate-x-4 cursor-pointer flex items-center justify-center rounded-md hover:bg-gray-200 text-xl hover:text-black">
+        <i class="fa-solid fa-xmark text-xl"></i>
+    </div>
+</div>
+
+<th:block th:include="~{fragments/header}"></th:block>
+<div class="container mx-auto relative my-4">
+    <div class="all-products">
+        <div class="product" th:each="product : ${products}">
+            <img th:src="@{/images/__${#strings.replace(product.getFilename(), ' ', '+')}__}" class="product-image">
+            <div class="product-info">
+                <h4 class="product-title" th:text="${product.getName()}"></h4>
+                <span class="product-price" th:text="${product.getPrice()}"></span>
+                <span><i class="fa-solid fa-ruble-sign 2xl:text-2xl"></i></span>
+                <a class="product-btn" th:href="@{|products/${product.getId()}|}">Подробнее</a>
+                <div th:if="${@userServiceImpl.isAdminOrSeller()}">
+                    <div th:if="${product.getUser() == @userServiceImpl.getUser() or @userServiceImpl.isAdmin()}">
+                        <a class="text-blue-600 hover:text-blue-800 text-lg"
+                           th:href="@{|/products/edit/${product.getId()}|}">
+                            <i class="fa-regular fa-pen-to-square"></i></a>
+                        <a class="text-red-600 hover:text-red-800 text-lg"
+                           th:href="@{|/products/delete/${product.getId()}|}">
+                            <i class="fa-regular fa-trash-can"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script th:src="@{/js/logout.js}"></script>
+<script th:src="@{/js/products.js}"></script>
+</html>

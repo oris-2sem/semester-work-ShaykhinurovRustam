@@ -1,0 +1,47 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <title>Заказ</title>
+</head>
+<body>
+<header class="py-12">
+    <div class="container mx-auto flex items-center gap-5 text-gray-700 font-medium">
+        <a th:href="@{/products}" class="hover:text-blue-700">Главная</a>
+        <i class="fa-solid fa-caret-right text-sm"></i>
+        <a th:href="@{/cart}" class="hover:text-blue-700">Корзина</a>
+        <i class="fa-solid fa-caret-right text-sm"></i>
+        <span class="text-blue-600">Заказ</span>
+    </div>
+</header>
+
+<div class="container h-full mx-auto flex flex-col ">
+
+    <div class="mt-9 mb-6">
+        <p class="text-2xl font-medium">Заказ</p>
+    </div>
+
+    <form th:action="@{/order}" method="post"
+          class="">
+        <div class="flex flex-col w-1/4 mx-auto gap-2">
+            <label class="font-medium text-gray">Адрес</label>
+            <input type="text" name="address"
+                   class="py-1.5 px-2.5 border-2 border-gray-300 rounded-lg bg-white" required>
+            <div class="flex justify-center">
+                <button type="submit"
+                        class="text-white bg-blue-600 hover:bg-blue-800
+                 mt-5 font-medium rounded-lg text-sm 2xl:text-md px-5 py-2.5 float-right">
+                    Оформить заказ
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</body>
+<style>
+    body {
+        font-family: 'Montserrat', sans-serif;
+    }
+</style>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <title>Мои отзывы</title>
+</head>
+<body>
+<header class="py-12">
+    <div class="container mx-auto flex items-center gap-5 text-gray-700 font-medium">
+        <a th:href="@{/products}" class="hover:text-blue-700">Главная</a>
+        <i class="fa-solid fa-caret-right text-sm"></i>
+        <a th:href="@{/user}" class="hover:text-blue-700">Пользователь</a>
+        <i class="fa-solid fa-caret-right text-sm"></i>
+        <span class="text-blue-600">Отзывы</span>
+    </div>
+</header>
+
+<div class="container h-full mx-auto flex flex-col">
+
+    <div class="mt-9 mb-6">
+        <p class="text-2xl font-medium">Ваши отзывы</p>
+    </div>
+
+    <div class="inline-grid grid-cols-2 gap-4 mb-6">
+        <div class="border w-full p-6 bg-white rounded-lg grid gap-2"
+             th:each="review : ${reviews}">
+            <div class="flex flex-col relative justify-center">
+                <div class="absolute right-0 top-0 flex gap-4 items-center">
+                    <p th:if="${!review.isPublished()}" class="text-gray-500 font-medium">На проверке</p>
+                    <a th:href="@{|/user/review/delete/${review.getId()}|}"
+                       class="text-red-600 hover:text-red-800 text-lg 2xl:text-xl cursor-pointer">
+                        <i class="fa-regular fa-trash-can"></i></a>
+                </div>
+                <div class="text-lg 2xl:text-2xl">
+                    <span class="font-medium" th:text="${review.getProduct().getName()}"></span>
+                </div>
+                <div class="flex gap-2 items-center text-gray-600 font-medium 2xl:text-md">
+                    <div class="text-yellow-400">
+                        <i th:each="i : ${#numbers.sequence(1, review.getRating())}"
+                           class="fa-solid fa-star"></i>
+                        <i th:if="${review.getRating() < 5}"
+                          th:each="i : ${#numbers.sequence(review.getRating(), 4)}"
+                          class="fa-regular fa-star"></i>
+                    </div>
+                    <div>
+                        <span th:text="${@reviewServiceImpl.getReviewDate(review.getCreated_at())}"></span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-gray-800 font-medium 2xl:text-lg" th:text="${review.getText()}"></p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+<style>
+    body {
+        font-family: 'Montserrat', sans-serif;
+    }
+</style>
+</html>

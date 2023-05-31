@@ -1,0 +1,208 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/product.css}" />
+    <title th:text="${product.getName()}"></title>
+</head>
+<body class="min-h-screen min-w-[1349px] relative">
+
+<!-- Toast -->
+<div th:if="${reviewMessage}" id="toast"
+     class="fixed flex gap-4 items-center text-gray-600 font-medium right-10 bg-white z-20 bottom-10 shadow-lg border-2 rounded-md py-6 px-8">
+    <div class="w-10 h-10 flex items-center justify-center rounded-md bg-green-100 text-green-800 text-xl">
+        <i class="fa-solid fa-check"></i>
+    </div>
+    <div>
+        <p class="text-lg" th:text="${reviewMessage}">Отзыв успешно отправлен на проверку</p>
+        <a th:href="@{|/user/reviews|}" class="text-blue-700 hover:underline">Мой отзывы</a>
+    </div>
+    <div id="toastCloseButton"
+         class="w-10 h-10 translate-x-4 cursor-pointer flex items-center justify-center rounded-md hover:bg-gray-200 text-xl hover:text-black">
+        <i class="fa-solid fa-xmark text-xl"></i>
+    </div>
+</div>
+
+<!-- Back to main page button -->
+<a th:href="@{/products}"
+   class="absolute top-5 left-5 w-10 h-10 rounded-md bg-gray-200 hover:bg-gray-400 flex items-center justify-center">
+    <i class="fa-solid fa-chevron-left"></i></a>
+
+<div class="grid grid-cols-[25%_75%] min-h-screen" th:object="${product}">
+    <div class="px-12 pt-24">
+        <div style="display: flex; justify-content: center" th:if="${product.getFilename()} != null">
+            <img th:src="@{/images/__${#strings.replace(product.getFilename(), ' ', '+')}__}" class="product-image">
+        </div>
+        <div class="sticky top-32 pb-12">
+            <p class="text-2xl 2xl:text-4xl font-medium mb-6 2xl:mb-12 text-center" th:text="*{name}"></p>
+            <div class="text-blue-600 font-medium text-center mb-6 2xl:mb-12">
+                <span class="text-xl 2xl:text-4xl" th:text="*{price}"></span>
+                <i class="fa-solid fa-ruble-sign 2xl:text-2xl"></i>
+            </div>
+            <div class="text-center mb-6 2xl:mb-12 2xl:text-2xl">
+                <i class="fa-solid fa-star text-yellow-400"></i>
+                <span th:if="${@productServiceImpl.getAvgRating(product.getId()) == 0}">-</span>
+                <span class="font-medium" th:if="${@productServiceImpl.getAvgRating(product.getId()) > 0}"
+                      th:text="${#numbers.formatDecimal(@productServiceImpl.getAvgRating(product.getId()), 0, 1, 'POINT')}"></span>
+                <span class="text-gray-700">/ 5</span>
+            </div>
+            <div class="py-4 px-4 2xl:px-6 rounded-lg even:bg-slate-100 text-sm 2xl:text-lg"
+                 th:each="option : ${@optionServiceImpl.getOptionsByCategory(product.getCategory())}">
+                <span class="font-medium" th:text="${option.getName()} + ':'"></span>
+                <span class="text-gray-700"
+                      th:text="${@productServiceImpl.findValueByProductAndOption(product, option)}"></span>
+            </div>
+            <div class="flex justify-center mt-12 2xl:mt-16">
+                <div th:if="${!@userServiceImpl.isAuthenticated()}">
+                    <button type="submit" id="cart-button"
+                            class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg text-lg 2xl:text-2xl px-8 py-3.5 2xl:px-12 2xl:py-5">
+                        В корзину
+                    </button>
+                </div>
+                <form th:if="${@userServiceImpl.isAuthenticated()}" th:action="@{/add_item}" method="post">
+                    <input type="hidden" name="productId" th:value="${product.getId()}">
+                    <button type="submit"
+                            class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg text-lg 2xl:text-2xl px-8 py-3.5 2xl:px-12 2xl:py-5">
+                        В корзину
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="min-h-screen bg-slate-100 px-16 2xl:px-18 pt-24 pb-12">
+        <p class="text-xl 2xl:text-2xl font-medium mb-5">
+            Отзывы
+            (<span th:text="${@reviewServiceImpl.getPublishedReviewsSize(product)}"></span>)
+        </p>
+        <div class="mb-5">
+            <a th:if="${@userServiceImpl.isAuthenticated()}" id="review-button"
+               class="text-blue-600 hover:underline cursor-pointer 2xl:text-lg font-medium">
+                Оставить отзыв</a>
+            <div class="2xl:text-lg font-medium" th:if="${!@userServiceImpl.isAuthenticated()}">
+                <span class="text-gray-700">Чтобы оставить отзыв необходимо</span>
+                <a class="text-blue-600 hover:underline" th:href="@{/login}">авторизоваться</a>
+            </div>
+        </div>
+        <div class="border-b w-full p-6 last:border-none shadow-lg bg-white rounded-lg mb-5 grid gap-2"
+             th:each="review : ${reviews}">
+            <div class="flex flex-col relative justify-center">
+                <a th:href="@{|/review/delete/${review.getId()}|}" th:if="${review.getUser() == @userServiceImpl.getUser()}"
+                   class="absolute right-0 top-0 text-red-600 hover:text-red-800 text-lg 2xl:text-xl cursor-pointer"><i
+                        class="fa-regular fa-trash-can"></i></a>
+                <p class="text-lg 2xl:text-2xl font-medium mr-2.5"
+                   th:text="${review.getUser().getName()} + ' ' + ${review.getUser().getLastname()}"></p>
+                <div class="flex gap-2 items-center text-gray-600 font-medium 2xl:text-md">
+                    <div class="text-yellow-400">
+                        <i th:each="i : ${#numbers.sequence(1, review.getRating())}"
+                           class="fa-solid fa-star"></i><!--
+                    --><i th:if="${review.getRating() < 5}"
+                          th:each="i : ${#numbers.sequence(review.getRating(), 4)}"
+                          class="fa-regular fa-star"></i>
+                    </div>
+                    <div>
+                        <span th:text="${@reviewServiceImpl.getReviewDate(review.getCreated_at())}"></span>
+                    </div>
+                </div>
+            </div>
+            <p class="text-gray-800 font-medium 2xl:text-lg" th:text="${review.getText()}"></p>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="review-modal" class="hidden fixed top-0 right-0 h-full w-full items-center justify-center bg-black/80">
+        <div id="review-overlay" class="absolute z-1 h-full w-full cursor-pointer"></div>
+        <div th:if="${@userServiceImpl.isAuthenticated()}" class="z-50">
+            <div th:if="${@reviewServiceImpl.isReviewPresent(product, @userServiceImpl.getUser())}"
+                 class="h-min bg-white px-10 py-12 rounded-3xl shadow-lg z-50 grid gap-4">
+                <p class="text-2xl font-medium">Вы уже ранее оставляли отзыв на этот товар</p>
+            </div>
+            <form th:unless="${@reviewServiceImpl.isReviewPresent(product, @userServiceImpl.getUser())}"
+                  th:action="@{/for_checking}" method="post"
+                  class="h-min bg-white px-10 py-12 rounded-3xl shadow-lg grid gap-4">
+                <input type="hidden" name="user_id" th:value="${@userServiceImpl.getUser().getId()}">
+                <input type="hidden" name="product_id" th:value="${product.getId()}">
+                <div class="rating text-5xl flex justify-center">
+                    <div class="w-fit relative">
+                        <label>
+                            <input type="radio" name="rating" value="1" required/>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating" value="2"/>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating" value="3"/>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating" value="4"/>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                        </label>
+                        <label>
+                            <input type="radio" name="rating" value="5"/>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                            <i class="fa-solid fa-star text-yellow-400"></i>
+                        </label>
+                    </div>
+                </div>
+                <div class="mt-12 grid gap-1">
+                    <label class="font-medium text-gray" for="review">Комментарий</label>
+                    <textarea name="review" id="review" cols="40" rows="10"
+                              class="py-1.5 px-2.5 border border-gray-300 bg-gray-50 rounded-lg" required></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit"
+                            class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded-lg text-sm 2xl:text-md px-5 py-2.5">
+                        Отправить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!--  Add to cart Modal  -->
+    <div th:if="${message}" id="cart-modal"
+         class="flex fixed top-0 right-0 h-full w-full items-center justify-center bg-black/80">
+        <div id="cart-overlay" class="absolute z-1 h-full w-full cursor-pointer"></div>
+        <div class="grid gap-6 text-center h-min w-1/4 bg-white px-10 py-12 rounded-3xl shadow-lg z-50">
+            <i class="fa-regular fa-circle-check text-5xl text-blue-600"></i>
+            <p>Товар был добавлен в корзину</p>
+            <div class="grid gap-2">
+                <a th:href="@{/cart}"
+                   class="text-white w-full bg-blue-600 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5">
+                    В корзину
+                </a>
+                <a th:href="@{/products}"
+                   class="text-gray-700 font-medium text-center rounded-lg text-sm px-5 py-2.5">
+                    Продолжить покупки
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!--  Add to cart Modal if user is not logged in -->
+    <div th:if="${!@userServiceImpl.isAuthenticated()}" id="cart-modal"
+         class="hidden fixed top-0 right-0 h-full w-full items-center justify-center bg-black/80">
+        <div id="cart-overlay" class="absolute z-1 h-full w-full cursor-pointer"></div>
+        <div class="flex text-center h-min min-w-1/3 bg-white px-10 py-12 rounded-3xl shadow-lg z-50">
+            <div class="text-2xl font-medium">
+                <span class="text-gray-700">Чтобы добавить товар в корзину необходимо</span><br>
+                <a class="text-blue-600 hover:underline" th:href="@{/login}">авторизоваться</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/js/product.js}"></script>
+</body>
+</html>

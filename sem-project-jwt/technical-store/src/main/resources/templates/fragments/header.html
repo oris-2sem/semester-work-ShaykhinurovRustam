@@ -1,0 +1,108 @@
+<header class="py-12 bg-teal-50">
+    <div class="container mx-auto flex items-center justify-between gap-6">
+        <div class="items-center pl-6 font-medium text-3xl">
+            <a class="text-gray-700 hover:text-black font-medium text-2xl"
+               th:href="@{/products}">
+            <span th:if="${categoryId == null}"
+                  th:text="${@userServiceImpl.greeting()} + ' 🛍️'"></span>
+            </a>
+            <span th:if="${categoryId != null}"
+                  th:text="${@categoryServiceImpl.getById(categoryId).getName()}"></span>
+        </div>
+        <form th:action="@{/products}" class="d-flex">
+            <input class="form-control me-1" name="keyword" id="keyword" size="50" th:value="${keyword}" type="search" placeholder="Искать" aria-label="Search">
+            <button class="btn" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+        <div class="pr-9 flex gap-12 items-center">
+            <div class="relative">
+                <div id="categoryDropdownButton"
+                     class="flex cursor-pointer items-center gap-1 text-gray-700 hover:text-black font-medium">
+                    <span>Категории</span>
+                    <i class="fa-solid fa-chevron-down text-sm"></i>
+                </div>
+                <!-- Dropdown menu -->
+                <div id="categoryDropdown"
+                     class="bg-white rounded-lg font-medium shadow min-w-[155px] absolute w-full z-10">
+                    <ul>
+                        <li th:if="${categoryId != null}">
+                            <a th:href="@{/products}"
+                               class="block px-4 py-2 hover:bg-gray-100">Все категории</a>
+                        </li>
+                        <li th:each="category : ${categories}">
+                            <a th:href="@{|products?categoryId=${category.getId()}|}"
+                               class="block px-4 py-2 hover:bg-gray-100"
+                               th:text="${category.getName()}"></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div th:if="${!@userServiceImpl.isAuthenticated()}" class="flex items-center text-blue-600 font-medium gap-4">
+                <a class="hover:underline" th:href="@{/login}">Войти</a>
+                <a class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 text-white" th:href="@{/registration}">Регистрация</a>
+            </div>
+            <div th:if="${@userServiceImpl.isAuthenticated()}" class="relative">
+                <div id="userDropdownButton"
+                     class="flex cursor-pointer items-center gap-1 text-gray-700 hover:text-black font-medium">
+                    <span th:text="${@userServiceImpl.getUser().getName()}"></span>
+                    <i class="fa-solid fa-chevron-down text-sm"></i>
+                </div>
+                <!-- Dropdown menu -->
+                <div id="userDropdown"
+                     class="bg-white rounded-lg font-medium shadow absolute min-w-[150px] right-0 z-10">
+                    <ul>
+                        <li>
+                            <a class="block px-5 py-2 hover:bg-gray-100"
+                               th:href="@{/user}">Профиль</a>
+                        </li>
+                        <li>
+                            <a class="block px-5 py-2 hover:bg-gray-100"
+                               th:href="@{/user/orders}">Мои заказы</a>
+                        </li>
+                        <li>
+                            <a class="block px-5 py-2 hover:bg-gray-100"
+                               th:href="@{/user/reviews}">Мои отзывы</a>
+                        </li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
+                                <input type="submit" value="logout">
+                            </form>
+                            <a href="" id="logoutLink" class="block px-5 pt-3.5 pb-2 border-t hover:bg-gray-100 text-red-600">Выйти</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div th:if="${@userServiceImpl.isAdminOrSeller()}" class="relative">
+                <div id="adminDropdownButton"
+                     class="flex cursor-pointer items-center gap-1 text-gray-700 hover:text-black font-medium">
+                    <span th:text="${@userServiceImpl.getUser().getRole().getServiceName()}"></span>
+                    <i class="fa-solid fa-chevron-down text-sm"></i>
+                </div>
+                <div id="adminDropdown"
+                     class="bg-white rounded-lg font-medium shadow absolute min-w-[100px] right-0 z-10">
+                    <ul>
+                        <li>
+                            <a class="block px-5 py-2 hover:bg-gray-100"
+                               th:href="@{/admin/orders}">Заказы</a>
+                        </li>
+                        <li>
+                            <a class="block px-5 py-2 hover:bg-gray-100"
+                               th:href="@{/admin/reviews}">Отзывы</a>
+                        </li>
+                        <li>
+                            <a class="block border-t px-5 pt-3.5 pb-2 hover:bg-gray-100 text-blue-600"
+                               th:href="@{/products/add}">
+                                Добавить</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <a th:if="${@userServiceImpl.isAuthenticated()}" class="text-gray-700 hover:text-black font-medium text-2xl"
+               th:href="@{/cart}">
+                <span class="iconify" data-icon="solar:bag-3-linear" data-width="40" data-height="40"></span>
+            </a>
+        </div>
+
+    </div>
+</header>

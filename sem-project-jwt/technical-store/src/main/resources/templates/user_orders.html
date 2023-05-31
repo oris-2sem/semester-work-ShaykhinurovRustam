@@ -1,0 +1,59 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <th:block th:include="~{fragments/head}"></th:block>
+    <title>Мои заказы</title>
+</head>
+<body>
+<header class="py-12">
+    <div class="container mx-auto flex items-center gap-5 text-gray-700 font-medium">
+        <a th:href="@{/products}" class="hover:text-blue-700">Главная</a>
+        <i class="fa-solid fa-caret-right text-sm"></i>
+        <a th:href="@{/user}" class="hover:text-blue-700">Пользователь</a>
+        <i class="fa-solid fa-caret-right text-sm"></i>
+        <span class="text-blue-600">Заказы</span>
+    </div>
+</header>
+
+<div class="container h-full mx-auto flex flex-col">
+
+    <div class="mt-9 mb-6">
+        <p class="text-2xl font-medium">Ваши заказы</p>
+    </div>
+
+    <table class="w-full text-left bg-white">
+        <thead class="text-gray-500">
+        <tr>
+            <th class="pr-6 py-4">Товары</th>
+            <th class="px-4">Статус</th>
+            <th class="px-6 py-4 text-right">Дата оформления</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="font-medium border-b last:border-0" th:each="order : ${orders}">
+            <td class="pr-6 py-4 grid">
+                <span class="text-lg"
+                   th:each="orderProduct : ${order.getOrderProducts()}">
+                    <span th:text="${orderProduct.getProduct().getName()}"></span>
+                    <span class="text-gray-600 font-light" th:text="'x' + ${orderProduct.getAmount()}"></span>
+                </span>
+            </td>
+            <td class="px-4">
+                <span th:text="${order.getStatus().getDisplayStatusName()}"></span>
+            </td>
+            <td class="px-6 py-4 text-right text-lg"
+                th:text="${@orderServiceImpl.getOrderDate(order.getCreated_at())}">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+<style>
+    body {
+        font-family: 'Montserrat', sans-serif;
+    }
+</style>
+</html>
