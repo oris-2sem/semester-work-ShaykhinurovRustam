@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+    <title>Ошибка</title>
+</head>
+<body>
+<div class="container">
+    <h2>Что-то пошло не так!</h2>
+    <h1 th:text="${statusCode}"></h1>
+    <p th:text="${message}">Мы не можем найти страницу по данному адресу.</p>
+    <a th:href="@{/products}">Вернуться на главную</a>
+</div>
+</body>
+</html>
